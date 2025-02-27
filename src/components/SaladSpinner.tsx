@@ -80,8 +80,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 
   return (
     <VStack 
-      gap={2} 
-      p={3} 
+      gap={{ base: 1, md: 2 }}
+      p={{ base: 2, md: 3 }}
       borderWidth={1} 
       borderRadius="lg" 
       bg="white" 
@@ -91,12 +91,12 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       justify="space-between"
     >
       <Heading 
-        size="sm" 
+        size={{ base: "xs", md: "sm" }}
         color="gray.700"
         textTransform="capitalize"
         borderBottom="2px"
         borderColor="green.400"
-        pb={2}
+        pb={{ base: 1, md: 2 }}
         width="100%"
         textAlign="center"
       >
@@ -105,8 +105,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       <Select
         value={value}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        width="150px"
-        size="sm"
+        width="100%"
+        size={{ base: "xs", md: "sm" }}
       >
         <option value="">{category}</option>
         {items.map((item) => (
@@ -117,8 +117,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       </Select>
       
       <Box
-        width="150px"
-        height="180px"
+        width="100%"
+        height={{ base: "120px", md: "180px" }}
         borderRadius="lg"
         overflow="hidden"
         position="relative"
@@ -148,7 +148,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         </AnimatePresence>
       </Box>
 
-      <HStack spacing={2}>
+      <HStack spacing={{ base: 1, md: 2 }}>
         <Button 
           onClick={onSpin} 
           disabled={isLocked || isSpinning}
@@ -157,8 +157,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           color="white"
           _hover={{ bg: 'gray.800' }}
           _active={{ bg: 'gray.900' }}
-          size="sm"
-          width="80px"
+          size={{ base: "xs", md: "sm" }}
+          width={{ base: "60px", md: "80px" }}
         >
           {isSpinning ? 'Spinning...' : 'Spin'}
         </Button>
@@ -169,8 +169,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           _hover={{ bg: isLocked ? "red.800" : "gray.800" }}
           _active={{ bg: isLocked ? "red.900" : "gray.900" }}
           disabled={isSpinning}
-          size="sm"
-          width="80px"
+          size={{ base: "xs", md: "sm" }}
+          width={{ base: "60px", md: "80px" }}
         >
           {isLocked ? "Unlock" : "Lock"}
         </Button>
@@ -266,12 +266,16 @@ export const SaladSpinner: React.FC = () => {
   return (
     <Box width="100%" maxW="100vw">
       <Grid
-        templateColumns="repeat(6, minmax(0, 1fr))"
-        gap={4}
+        templateColumns={{
+          base: "repeat(2, 1fr)",
+          md: "repeat(3, 1fr)",
+          lg: "repeat(6, 1fr)"
+        }}
+        gap={{ base: 3, md: 4 }}
         width="100%"
         alignItems="stretch"
         justifyContent="center"
-        px={4}
+        px={{ base: 2, md: 4 }}
       >
         {(Object.keys(selections) as SaladCategory[]).map((category) => (
           <SpinnerSlot
@@ -288,12 +292,12 @@ export const SaladSpinner: React.FC = () => {
       </Grid>
 
       <Button
-        size="lg"
+        size={{ base: "lg", md: "lg" }}
         colorScheme="green"
-        mt={8}
+        mt={{ base: 6, md: 8 }}
         onClick={spinAll}
-        width="200px"
-        height="200px"
+        width={{ base: "150px", md: "200px" }}
+        height={{ base: "150px", md: "200px" }}
         borderRadius="full"
         mx="auto"
         display="block"
