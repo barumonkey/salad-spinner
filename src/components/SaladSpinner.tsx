@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Box, Button, Grid, Select, Image, VStack, HStack, Skeleton, Heading } from '@chakra-ui/react';
+import { useState, useEffect, useMemo } from 'react';
+import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, InputGroup, InputLeftElement, Popover, PopoverTrigger, PopoverContent, PopoverBody, List, ListItem, useDisclosure, Icon } from '@chakra-ui/react';
+import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { AnimatePresence } from 'framer-motion';
 import { SaladCategory, saladData } from '../types/salad';
 // import { badCombos } from '../types/salad';
@@ -16,6 +17,12 @@ interface SpinnerSlotProps {
   isSpinning: boolean;
 }
 
+interface SelectOption {
+  value: string;
+  label: string;
+  isNew?: boolean;
+}
+
 const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   category,
   value,
@@ -28,11 +35,73 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   // const controls = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
   const [displayedItem, setDisplayedItem] = useState(value || category);
+  const [searchQuery, setSearchQuery] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const items = saladData[category];
 
   // Format category name to be more readable
   const formatCategoryName = (cat: string) => {
     return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
+
+  // Filter items based on search query
+  const filteredItems = useMemo(() => {
+    return items.filter(item => 
+      item.toLowerCase().replace(/_/g, ' ').includes(searchQuery.toLowerCase())
+    );
+  }, [items, searchQuery]);
+
+  const handleSelect = (item: string) => {
+    onChange(item);
+    onClose();
+    setSearchQuery("");
+  };
+
+  // Custom styles for the select component
+  const selectStyles: ChakraStylesConfig = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: 'green.200',
+      _hover: { borderColor: 'green.300' },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      bg: state.isSelected ? 'green.500' : 'white',
+      _hover: { bg: state.isSelected ? 'green.600' : 'green.50' },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      maxH: '200px',
+      overflowY: 'auto',
+    }),
+  };
+
+  // Custom components for the select
+  const customComponents = {
+    Option: ({ children, ...props }: any) => (
+      <chakraComponents.Option {...props}>
+        <HStack>
+          <Image 
+            src={`/images/${props.data.value}.png`}
+            alt={props.data.label}
+            width="24px"
+            height="24px"
+            objectFit="contain"
+            loading="lazy"
+          />
+          <Box>{children}</Box>
+        </HStack>
+      </chakraComponents.Option>
+    ),
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      if (!isLocked && !isSpinning) {
+        onSpin();
+      }
+    }
   };
 
   // Handle image load
@@ -89,8 +158,11 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       borderColor="green.200"
       height="100%"
       justify="space-between"
+      role="region"
+      aria-label={`${formatCategoryName(category)} selector`}
     >
       <Heading 
+        as="h2"
         size={{ base: "xs", md: "sm" }}
         color="gray.700"
         textTransform="capitalize"
@@ -102,19 +174,101 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       >
         {formatCategoryName(category)}
       </Heading>
-      <Select
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        width="100%"
-        size={{ base: "xs", md: "sm" }}
+      
+      <Popover
+        isOpen={isOpen}
+        onClose={onClose}
+        placement="bottom"
+        matchWidth
       >
-        <option value="">{category}</option>
-        {items.map((item) => (
-          <option key={item} value={item}>
-            {item.replace(/_/g, ' ')}
-          </option>
-        ))}
-      </Select>
+        <PopoverTrigger>
+          <Button
+            onClick={onOpen}
+            width="100%"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            bg="white"
+            borderWidth={1}
+            borderColor="gray.200"
+            _hover={{ borderColor: "gray.300" }}
+            isDisabled={isSpinning}
+            rightIcon={<ChevronDownIcon />}
+            size={{ base: "xs", md: "sm" }}
+          >
+            <HStack spacing={2} width="100%" justify="flex-start">
+              {value && (
+                <Image
+                  src={`/images/${value}.png`}
+                  alt={value.replace(/_/g, ' ')}
+                  width="20px"
+                  height="20px"
+                  objectFit="contain"
+                />
+              )}
+              <Box isTruncated>
+                {value ? value.replace(/_/g, ' ') : category}
+              </Box>
+            </HStack>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent maxH="300px" overflowY="auto">
+          <PopoverBody p={2}>
+            <InputGroup size="sm" mb={2}>
+              <InputLeftElement>
+                <Icon as={SearchIcon} color="gray.400" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search ingredients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                borderRadius="md"
+              />
+            </InputGroup>
+            <List spacing={1}>
+              <ListItem
+                px={2}
+                py={1}
+                cursor="pointer"
+                _hover={{ bg: "gray.100" }}
+                onClick={() => handleSelect("")}
+                display="flex"
+                alignItems="center"
+              >
+                {category}
+              </ListItem>
+              {filteredItems.map((item) => (
+                <ListItem
+                  key={item}
+                  px={2}
+                  py={1}
+                  cursor="pointer"
+                  _hover={{ bg: "gray.100" }}
+                  onClick={() => handleSelect(item)}
+                  display="flex"
+                  alignItems="center"
+                >
+                  <HStack spacing={2} width="100%">
+                    <Image
+                      src={`/images/${item}.png`}
+                      alt={item.replace(/_/g, ' ')}
+                      width="24px"
+                      height="24px"
+                      objectFit="contain"
+                    />
+                    <Box>{item.replace(/_/g, ' ')}</Box>
+                  </HStack>
+                </ListItem>
+              ))}
+              {filteredItems.length === 0 && (
+                <ListItem px={2} py={1} color="gray.500">
+                  No ingredients found
+                </ListItem>
+              )}
+            </List>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
       
       <Box
         width="100%"
@@ -122,6 +276,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         borderRadius="lg"
         overflow="hidden"
         position="relative"
+        role="img"
+        aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
           {isLoading && (
@@ -138,7 +294,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           <Image
             key={displayedItem}
             src={`/images/${displayedItem}.png`}
-            alt={displayedItem}
+            alt={displayedItem.replace(/_/g, ' ')}
             width="100%"
             height="100%"
             objectFit="contain"
@@ -150,7 +306,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 
       <HStack spacing={{ base: 1, md: 2 }}>
         <Button 
-          onClick={onSpin} 
+          onClick={onSpin}
+          onKeyDown={handleKeyPress}
           disabled={isLocked || isSpinning}
           _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
           bg="gray.700"
@@ -159,6 +316,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           _active={{ bg: 'gray.900' }}
           size={{ base: "xs", md: "sm" }}
           width={{ base: "60px", md: "80px" }}
+          aria-label={`Spin ${category} ${isSpinning ? 'in progress' : ''}`}
         >
           {isSpinning ? 'Spinning...' : 'Spin'}
         </Button>
@@ -171,6 +329,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           disabled={isSpinning}
           size={{ base: "xs", md: "sm" }}
           width={{ base: "60px", md: "80px" }}
+          aria-label={`${isLocked ? 'Unlock' : 'Lock'} ${category}`}
+          aria-pressed={isLocked}
         >
           {isLocked ? "Unlock" : "Lock"}
         </Button>
@@ -264,7 +424,12 @@ export const SaladSpinner: React.FC = () => {
   };
 
   return (
-    <Box width="100%" maxW="100vw">
+    <Box 
+      width="100%" 
+      maxW="100vw"
+      role="main"
+      aria-label="Salad Spinner Game"
+    >
       <Grid
         templateColumns={{
           base: "repeat(2, 1fr)",
@@ -276,6 +441,8 @@ export const SaladSpinner: React.FC = () => {
         alignItems="stretch"
         justifyContent="center"
         px={{ base: 2, md: 4 }}
+        role="group"
+        aria-label="Salad ingredient categories"
       >
         {(Object.keys(selections) as SaladCategory[]).map((category) => (
           <SpinnerSlot
@@ -306,6 +473,7 @@ export const SaladSpinner: React.FC = () => {
         boxShadow="lg"
         _hover={{ transform: 'scale(1.05)' }}
         transition="all 0.2s"
+        aria-label="Spin all unlocked ingredients"
       >
         {Object.values(spinningSlots).some(Boolean) ? 'Spinning...' : 'SPIN ALL!'}
       </Button>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://salad-spinner.vercel.app/sitemap.xml 

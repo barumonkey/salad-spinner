@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#1a332c"/>
+  
+  <!-- Bowl -->
+  <path d="M96 256C96 176 166 112 256 112C346 112 416 176 416 256" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M76 256H436" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  <path d="M106 256C106 360 172 400 256 400C340 400 406 360 406 256" stroke="white" stroke-width="24" stroke-linecap="round"/>
+  
+  <!-- Salad Elements -->
+  <circle cx="180" cy="220" r="20" fill="#4CAF50"/>
+  <circle cx="240" cy="180" r="24" fill="#8BC34A"/>
+  <circle cx="300" cy="210" r="18" fill="#CDDC39"/>
+  <circle cx="220" cy="240" r="16" fill="#FFC107"/>
+  <circle cx="270" cy="230" r="22" fill="#FF5722"/>
+  
+  <!-- Fork -->
+  <path d="M256 112V80" stroke="white" stroke-width="16" stroke-linecap="round"/>
+  <path d="M236 80V60" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M256 80V60" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M276 80V60" stroke="white" stroke-width="8" stroke-linecap="round"/>
+</svg> 
