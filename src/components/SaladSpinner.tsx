@@ -24,13 +24,7 @@ interface SelectOption {
 }
 
 const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
-  category,
-  value,
-  isLocked,
-  onSpin,
-  onLock,
-  onChange,
-  isSpinning,
+  category, value, isLocked, onSpin, onLock, onChange, isSpinning,
 }) => {
   // const controls = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
@@ -60,19 +54,13 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   // Custom styles for the select component
   const selectStyles: ChakraStylesConfig = {
     control: (provided) => ({
-      ...provided,
-      borderColor: 'green.200',
-      _hover: { borderColor: 'green.300' },
+      ...provided, borderColor: 'green.200', _hover: { borderColor: 'green.300' },
     }),
     option: (provided, state) => ({
-      ...provided,
-      bg: state.isSelected ? 'green.500' : 'white',
-      _hover: { bg: state.isSelected ? 'green.600' : 'green.50' },
+      ...provided, bg: state.isSelected ? 'green.500' : 'white', _hover: { bg: state.isSelected ? 'green.600' : 'green.50' },
     }),
     menu: (provided) => ({
-      ...provided,
-      maxH: '200px',
-      overflowY: 'auto',
+      ...provided, maxH: '200px', overflowY: 'auto',
     }),
   };
 
@@ -81,14 +69,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
     Option: ({ children, ...props }: any) => (
       <chakraComponents.Option {...props}>
         <HStack>
-          <Image 
-            src={`/images/${props.data.value}.png`}
-            alt={props.data.label}
-            width="24px"
-            height="24px"
-            objectFit="contain"
-            loading="lazy"
-          />
+          <Image src={`/images/${props.data.value}.png`} alt={props.data.label}
+            width="24px"height="24px" objectFit="contain" loading="lazy"/>
           <Box>{children}</Box>
         </HStack>
       </chakraComponents.Option>
@@ -148,62 +130,30 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   }, [isSpinning, value, category, items]);
 
   return (
-    <VStack 
-      gap={{ base: 1, md: 2 }}
-      p={{ base: 2, md: 3 }}
-      borderWidth={1} 
-      borderRadius="lg" 
-      bg="white" 
-      boxShadow="lg"
-      borderColor="green.200"
-      height="100%"
-      justify="space-between"
-      role="region"
-      aria-label={`${formatCategoryName(category)} selector`}
+    <VStack
+      gap={{ base: 1, md: 2 }} p={{ base: 2, md: 3 }}
+      borderWidth={1} borderRadius="lg" bg="white" boxShadow="lg" borderColor="green.200"
+      height="100%" justify="space-between" role="region" aria-label={`${formatCategoryName(category)} selector`}
     >
       <Heading 
-        as="h2"
-        size={{ base: "xs", md: "sm" }}
-        color="gray.700"
-        textTransform="capitalize"
-        borderBottom="2px"
-        borderColor="green.400"
-        pb={{ base: 1, md: 2 }}
-        width="100%"
-        textAlign="center"
+        as="h2" size={{ base: "xs", md: "sm" }} color="gray.700" textTransform="capitalize"
+        borderBottom="2px" borderColor="green.400" pb={{ base: 1, md: 2 }} width="100%" textAlign="center"
       >
         {formatCategoryName(category)}
       </Heading>
       
-      <Popover
-        isOpen={isOpen}
-        onClose={onClose}
-        placement="bottom"
-        matchWidth
-      >
+      <Popover isOpen={isOpen} onClose={onClose} placement="bottom" matchWidth>
         <PopoverTrigger>
           <Button
-            onClick={onOpen}
-            width="100%"
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            bg="white"
-            borderWidth={1}
-            borderColor="gray.200"
-            _hover={{ borderColor: "gray.300" }}
-            isDisabled={isSpinning}
-            rightIcon={<ChevronDownIcon />}
-            size={{ base: "xs", md: "sm" }}
+            onClick={onOpen} width="100%" display="flex" justifyContent="space-between" alignItems="center"
+            bg="white" borderWidth={1} borderColor="gray.200" _hover={{ borderColor: "gray.300" }}
+            isDisabled={isSpinning} rightIcon={<ChevronDownIcon />} size={{ base: "xs", md: "sm" }}
           >
             <HStack spacing={2} width="100%" justify="flex-start">
               {value && (
                 <Image
-                  src={`/images/${value}.png`}
-                  alt={value.replace(/_/g, ' ')}
-                  width="20px"
-                  height="20px"
-                  objectFit="contain"
+                  src={`/images/${value}.png`} alt={value.replace(/_/g, ' ')}
+                  width="20px" height="20px" objectFit="contain"
                 />
               )}
               <Box isTruncated>
@@ -219,42 +169,26 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
                 <Icon as={SearchIcon} color="gray.400" />
               </InputLeftElement>
               <Input
-                placeholder="Search ingredients..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                borderRadius="md"
+                placeholder="Search ingredients..." value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)} borderRadius="md"
               />
             </InputGroup>
             <List spacing={1}>
               <ListItem
-                px={2}
-                py={1}
-                cursor="pointer"
-                _hover={{ bg: "gray.100" }}
-                onClick={() => handleSelect("")}
-                display="flex"
-                alignItems="center"
+                px={2} py={1} cursor="pointer" _hover={{ bg: "gray.100" }}
+                onClick={() => handleSelect("")} display="flex" alignItems="center"
               >
                 {category}
               </ListItem>
               {filteredItems.map((item) => (
                 <ListItem
-                  key={item}
-                  px={2}
-                  py={1}
-                  cursor="pointer"
-                  _hover={{ bg: "gray.100" }}
-                  onClick={() => handleSelect(item)}
-                  display="flex"
-                  alignItems="center"
+                  key={item} px={2} py={1} cursor="pointer" _hover={{ bg: "gray.100" }}
+                  onClick={() => handleSelect(item)} display="flex" alignItems="center"
                 >
                   <HStack spacing={2} width="100%">
                     <Image
-                      src={`/images/${item}.png`}
-                      alt={item.replace(/_/g, ' ')}
-                      width="24px"
-                      height="24px"
-                      objectFit="contain"
+                      src={`/images/${item}.png`} alt={item.replace(/_/g, ' ')}
+                      width="24px" height="24px" objectFit="contain"
                     />
                     <Box>{item.replace(/_/g, ' ')}</Box>
                   </HStack>
@@ -271,66 +205,34 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
       </Popover>
       
       <Box
-        width="100%"
-        height={{ base: "120px", md: "180px" }}
-        borderRadius="lg"
-        overflow="hidden"
-        position="relative"
-        role="img"
-        aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
+        width="100%" height={{ base: "120px", md: "180px" }} borderRadius="lg" overflow="hidden" position="relative"
+        role="img" aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
           {isLoading && (
-            <Skeleton
-              position="absolute"
-              top={0}
-              left={0}
-              width="100%"
-              height="100%"
-              startColor="gray.100"
-              endColor="gray.300"
-            />
+            <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
           <Image
-            key={displayedItem}
-            src={`/images/${displayedItem}.png`}
-            alt={displayedItem.replace(/_/g, ' ')}
-            width="100%"
-            height="100%"
-            objectFit="contain"
-            style={{ opacity: isLoading ? 0 : 1 }}
-            onLoad={handleImageLoad}
+            key={displayedItem} src={`/images/${displayedItem}.png`} alt={displayedItem.replace(/_/g, ' ')}
+            width="100%" height="100%" objectFit="contain" style={{ opacity: isLoading ? 0 : 1 }} onLoad={handleImageLoad}
           />
         </AnimatePresence>
       </Box>
 
       <HStack spacing={{ base: 1, md: 2 }}>
         <Button 
-          onClick={onSpin}
-          onKeyDown={handleKeyPress}
-          disabled={isLocked || isSpinning}
-          _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
-          bg="gray.700"
-          color="white"
-          _hover={{ bg: 'gray.800' }}
-          _active={{ bg: 'gray.900' }}
-          size={{ base: "xs", md: "sm" }}
-          width={{ base: "60px", md: "80px" }}
+          onClick={onSpin} onKeyDown={handleKeyPress} disabled={isLocked || isSpinning} _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
+          bg="gray.700" color="white"
+          _hover={{ bg: 'gray.800' }} _active={{ bg: 'gray.900' }} size={{ base: "xs", md: "sm" }} width={{ base: "60px", md: "80px" }}
           aria-label={`Spin ${category} ${isSpinning ? 'in progress' : ''}`}
         >
           {isSpinning ? 'Spinning...' : 'Spin'}
         </Button>
         <Button
-          onClick={onLock}
-          bg={isLocked ? "red.700" : "gray.700"}
-          color="white"
-          _hover={{ bg: isLocked ? "red.800" : "gray.800" }}
-          _active={{ bg: isLocked ? "red.900" : "gray.900" }}
-          disabled={isSpinning}
-          size={{ base: "xs", md: "sm" }}
-          width={{ base: "60px", md: "80px" }}
-          aria-label={`${isLocked ? 'Unlock' : 'Lock'} ${category}`}
-          aria-pressed={isLocked}
+          onClick={onLock} bg={isLocked ? "red.700" : "gray.700"} color="white"
+          _hover={{ bg: isLocked ? "red.800" : "gray.800" }} _active={{ bg: isLocked ? "red.900" : "gray.900" }} disabled={isSpinning}
+          size={{ base: "xs", md: "sm" }} width={{ base: "60px", md: "80px" }}
+          aria-label={`${isLocked ? 'Unlock' : 'Lock'} ${category}`} aria-pressed={isLocked}
         >
           {isLocked ? "Unlock" : "Lock"}
         </Button>
@@ -342,30 +244,15 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 export const SaladSpinner: React.FC = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [selections, setSelections] = useState<Record<SaladCategory, string>>({
-    base: '',
-    crunch: '',
-    soft: '',
-    unexpected: '',
-    protein: '',
-    dressing: ''
+    base: '', crunch: '', soft: '', unexpected: '', protein: '', dressing: ''
   });
 
   const [lockedSlots, setLockedSlots] = useState<Record<SaladCategory, boolean>>({
-    base: false,
-    crunch: false,
-    soft: false,
-    unexpected: false,
-    protein: false,
-    dressing: false
+    base: false, crunch: false, soft: false, unexpected: false, protein: false, dressing: false
   });
 
   const [spinningSlots, setSpinningSlots] = useState<Record<SaladCategory, boolean>>({
-    base: false,
-    crunch: false,
-    soft: false,
-    unexpected: false,
-    protein: false,
-    dressing: false
+    base: false, crunch: false, soft: false, unexpected: false, protein: false, dressing: false
   });
 
   // Add initial spin effect
@@ -424,59 +311,42 @@ export const SaladSpinner: React.FC = () => {
   };
 
   return (
-    <Box 
-      width="100%" 
-      maxW="100vw"
-      role="main"
-      aria-label="Salad Spinner Game"
-    >
+    <Box width="100%" maxW="100vw" role="main" aria-label="Salad Spinner Game">
       <Grid
-        templateColumns={{
-          base: "repeat(2, 1fr)",
-          md: "repeat(3, 1fr)",
-          lg: "repeat(6, 1fr)"
-        }}
-        gap={{ base: 3, md: 4 }}
-        width="100%"
-        alignItems="stretch"
-        justifyContent="center"
-        px={{ base: 2, md: 4 }}
-        role="group"
-        aria-label="Salad ingredient categories"
+        templateColumns={{base: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(6, 1fr)"}}
+        gap={{ base: 3, md: 4 }} width="100%" alignItems="stretch" justifyContent="center"
+        px={{ base: 2, md: 4 }} role="group" aria-label="Salad ingredient categories"
       >
         {(Object.keys(selections) as SaladCategory[]).map((category) => (
           <SpinnerSlot
-            key={category}
-            category={category}
-            value={selections[category]}
-            isLocked={lockedSlots[category]}
-            isSpinning={spinningSlots[category]}
-            onSpin={() => spinSlot(category)}
-            onLock={() => toggleLock(category)}
+            key={category} category={category} value={selections[category]}
+            isLocked={lockedSlots[category]} isSpinning={spinningSlots[category]}
+            onSpin={() => spinSlot(category)} onLock={() => toggleLock(category)}
             onChange={(value) => handleChange(category, value)}
           />
         ))}
       </Grid>
 
       <Button
-        size={{ base: "lg", md: "lg" }}
-        colorScheme="green"
-        mt={{ base: 6, md: 8 }}
-        onClick={spinAll}
-        width={{ base: "150px", md: "200px" }}
-        height={{ base: "150px", md: "200px" }}
-        borderRadius="full"
-        mx="auto"
-        display="block"
-        disabled={Object.values(spinningSlots).some(Boolean)}
-        _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
-        boxShadow="lg"
-        _hover={{ transform: 'scale(1.05)' }}
-        transition="all 0.2s"
-        aria-label="Spin all unlocked ingredients"
+        size={{ base: "lg", md: "lg" }} colorScheme="green" mt={{ base: 6, md: 8 }} onClick={spinAll}
+        width={{ base: "150px", md: "200px" }} height={{ base: "150px", md: "200px" }}
+        borderRadius="full" mx="auto" display="block"
+        disabled={Object.values(spinningSlots).some(Boolean)} _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
+        boxShadow="lg" _hover={{ transform: 'scale(1.05)' }} transition="all 0.2s" aria-label="Spin all unlocked ingredients"
       >
         {Object.values(spinningSlots).some(Boolean) ? 'Spinning...' : 'SPIN ALL!'}
       </Button>
     </Box>
   );
 }; 
+
+// TODO:
+// Add a toggle to switch to "Wonder Jar" mode.
+// "Wonder Jar" mode has the following categories and ingredients:
+// Protein: Beans, Lentils, Peas, Tofu, Chicken, Turkey
+// Veggies: California, Broccoli, Mixed, stirfry, Zucchini and tomatoes, eggplant
+// Starch: Rice, Potatoes, Pasta, Quinoa, Bread
+// Sauce: Vinaigrette, hot sauce, soy sauce, sour cream, mayonnaise, cheese
+
+// TODO:
+// Users should be able to adjust the categories and their contents.
