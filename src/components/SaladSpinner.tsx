@@ -3,7 +3,7 @@ import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, Inp
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { AnimatePresence } from 'framer-motion';
 import { SaladCategory, saladData } from '../types/salad';
-import { badCombos } from '../types/salad'; // TODO: Use this to check for bad combos
+// import { badCombos } from '../types/salad'; // TODO: Use this to check for bad combos
 
 // const MotionBox = motion(Box);
 
@@ -185,36 +185,37 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         role="img" aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
-          {isLoading && (
+          {isLoading && !imageError && (
             <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
-          <Image
-            key={displayedItem}
-            src={`./images/${displayedItem}.png`}
-            alt={displayedItem.replace(/_/g, ' ')}
-            width="100%"
-            height="100%"
-            objectFit="contain"
-            style={{ opacity: isLoading ? 0 : 1 }}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            fallback={
-              <Box
-                width="100%"
-                height="100%"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                bg="gray.100"
-                color="gray.500"
-                fontSize="sm"
-                textAlign="center"
-                borderRadius="md"
-              >
-                Image not found
-              </Box>
-            }
-          />
+          {imageError ? (
+            <Box
+              width="100%"
+              height="100%"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              bg="gray.100"
+              color="gray.500"
+              fontSize="sm"
+              textAlign="center"
+              borderRadius="md"
+            >
+              Image not found
+            </Box>
+          ) : (
+            <Image
+              key={displayedItem}
+              src={`./images/${displayedItem}.png`}
+              alt={displayedItem.replace(/_/g, ' ')}
+              width="100%"
+              height="100%"
+              objectFit="contain"
+              style={{ opacity: isLoading ? 0 : 1 }}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+            />
+          )}
         </AnimatePresence>
       </Box>
 
