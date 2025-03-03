@@ -126,7 +126,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
             <HStack spacing={2} width="100%" justify="flex-start">
               {value && (
                 <Image
-                  src={`./images/${value}.png`}
+                  src={`/images/${value}.png`}
                   alt={value.replace(/_/g, ' ')}
                   width="20px" height="20px" objectFit="contain"
                 />
@@ -162,7 +162,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
                 >
                   <HStack spacing={2} width="100%">
                     <Image
-                      src={`./images/${item}.png`}
+                      src={`/images/${item}.png`}
                       alt={item.replace(/_/g, ' ')}
                       width="24px" height="24px" objectFit="contain"
                     />
@@ -185,37 +185,36 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         role="img" aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
-          {isLoading && !imageError && (
+          {isLoading && (
             <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
-          {imageError ? (
-            <Box
-              width="100%"
-              height="100%"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              bg="gray.100"
-              color="gray.500"
-              fontSize="sm"
-              textAlign="center"
-              borderRadius="md"
-            >
-              Image not found
-            </Box>
-          ) : (
-            <Image
-              key={displayedItem}
-              src={`./images/${displayedItem}.png`}
-              alt={displayedItem.replace(/_/g, ' ')}
-              width="100%"
-              height="100%"
-              objectFit="contain"
-              style={{ opacity: isLoading ? 0 : 1 }}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-            />
-          )}
+          <Image
+            key={displayedItem}
+            src={`/images/${displayedItem}.png`}
+            alt={displayedItem.replace(/_/g, ' ')}
+            width="100%"
+            height="100%"
+            objectFit="contain"
+            style={{ opacity: isLoading ? 0 : 1 }}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            fallback={
+              <Box
+                width="100%"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                bg="gray.100"
+                color="gray.500"
+                fontSize="sm"
+                textAlign="center"
+                borderRadius="md"
+              >
+                Image not found
+              </Box>
+            }
+          />
         </AnimatePresence>
       </Box>
 
