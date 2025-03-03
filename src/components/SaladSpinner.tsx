@@ -22,7 +22,6 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 }) => {
   // const controls = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
   const [displayedItem, setDisplayedItem] = useState(value || category);
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -46,7 +45,6 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
     setSearchQuery("");
   };
   
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
@@ -59,12 +57,6 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   // Handle image load
   const handleImageLoad = () => {
     setIsLoading(false);
-    setImageError(false);
-  };
-
-  const handleImageError = () => {
-    setIsLoading(false);
-    setImageError(true);
   };
 
   useEffect(() => {
@@ -197,23 +189,6 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
             objectFit="contain"
             style={{ opacity: isLoading ? 0 : 1 }}
             onLoad={handleImageLoad}
-            onError={handleImageError}
-            fallback={
-              <Box
-                width="100%"
-                height="100%"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                bg="gray.100"
-                color="gray.500"
-                fontSize="sm"
-                textAlign="center"
-                borderRadius="md"
-              >
-                Image not found
-              </Box>
-            }
           />
         </AnimatePresence>
       </Box>
