@@ -17,21 +17,17 @@ interface SpinnerSlotProps {
   isSpinning: boolean;
 }
 
-interface SelectOption {
-  value: string;
-  label: string;
-  isNew?: boolean;
-}
-
 const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   category, value, isLocked, onSpin, onLock, onChange, isSpinning,
 }) => {
   // const controls = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const [displayedItem, setDisplayedItem] = useState(value || category);
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const items = saladData[category];
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Format category name to be more readable
   const formatCategoryName = (cat: string) => {
@@ -50,32 +46,7 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
     onClose();
     setSearchQuery("");
   };
-
-  // Custom styles for the select component
-  const selectStyles: ChakraStylesConfig = {
-    control: (provided) => ({
-      ...provided, borderColor: 'green.200', _hover: { borderColor: 'green.300' },
-    }),
-    option: (provided, state) => ({
-      ...provided, bg: state.isSelected ? 'green.500' : 'white', _hover: { bg: state.isSelected ? 'green.600' : 'green.50' },
-    }),
-    menu: (provided) => ({
-      ...provided, maxH: '200px', overflowY: 'auto',
-    }),
-  };
-
-  // Custom components for the select
-  const customComponents = {
-    Option: ({ children, ...props }: any) => (
-      <chakraComponents.Option {...props}>
-        <HStack>
-          <Image src={`/images/${props.data.value}.png`} alt={props.data.label}
-            width="24px"height="24px" objectFit="contain" loading="lazy"/>
-          <Box>{children}</Box>
-        </HStack>
-      </chakraComponents.Option>
-    ),
-  };
+  
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === ' ' || e.key === 'Enter') {
@@ -92,13 +63,13 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   };
 
   useEffect(() => {
-    if (!isSpinning) {
+    if (!isSpinning || prefersReducedMotion) {
       setDisplayedItem(value || category);
       return;
     }
 
     let frameCount = 0;
-    const maxFrames = 1000;
+    const maxFrames = prefersReducedMotion ? 1 : 1000;
     let timeoutId: number;
 
     const showNextImage = () => {
@@ -127,7 +98,12 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [isSpinning, value, category, items]);
+  }, [isSpinning, value, category, items, prefersReducedMotion]);
+
+  const handleImageError = () => {
+    setImageError(true);
+    setIsLoading(false);
+  };
 
   return (
     <VStack
@@ -209,13 +185,36 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         role="img" aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
-          {isLoading && (
+          {isLoading && !imageError && (
             <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
-          <Image
-            key={displayedItem} src={`/images/${displayedItem}.png`} alt={displayedItem.replace(/_/g, ' ')}
-            width="100%" height="100%" objectFit="contain" style={{ opacity: isLoading ? 0 : 1 }} onLoad={handleImageLoad}
-          />
+          {!imageError ? (
+            <Image
+              key={displayedItem}
+              src={`/images/${displayedItem}.png`}
+              alt={displayedItem.replace(/_/g, ' ')}
+              width="100%"
+              height="100%"
+              objectFit="contain"
+              style={{ opacity: isLoading ? 0 : 1 }}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              loading="lazy"
+            />
+          ) : (
+            <Box
+              width="100%"
+              height="100%"
+              bg="gray.100"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              color="gray.500"
+              fontSize="sm"
+            >
+              {displayedItem.replace(/_/g, ' ')}
+            </Box>
+          )}
         </AnimatePresence>
       </Box>
 
