@@ -3,7 +3,7 @@ import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, Inp
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { AnimatePresence } from 'framer-motion';
 import { SaladCategory, saladData } from '../types/salad';
-// import { badCombos } from '../types/salad';
+import { badCombos } from '../types/salad'; // TODO: Use this to check for bad combos
 
 // const MotionBox = motion(Box);
 
@@ -27,7 +27,6 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const items = saladData[category];
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Format category name to be more readable
   const formatCategoryName = (cat: string) => {
@@ -60,16 +59,22 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
   // Handle image load
   const handleImageLoad = () => {
     setIsLoading(false);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setImageError(true);
   };
 
   useEffect(() => {
-    if (!isSpinning || prefersReducedMotion) {
+    if (!isSpinning) {
       setDisplayedItem(value || category);
       return;
     }
 
     let frameCount = 0;
-    const maxFrames = prefersReducedMotion ? 1 : 1000;
+    const maxFrames = 1000;
     let timeoutId: number;
 
     const showNextImage = () => {
@@ -80,30 +85,23 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 
       // Calculate increasing delay based on progress
       const progress = frameCount / maxFrames;
-      const baseDelay = 100; // Start with 100ms delay
-      const maxDelay = 1000; // End with 1000ms delay
-      const currentDelay = baseDelay + (maxDelay - baseDelay) * Math.pow(progress, 2);
+      const delay = 50 + Math.floor(450 * progress); // Starts at 50ms, ends at 500ms
 
       setDisplayedItem(items[Math.floor(Math.random() * items.length)]);
       frameCount++;
 
-      timeoutId = window.setTimeout(showNextImage, currentDelay);
+      timeoutId = window.setTimeout(showNextImage, delay);
     };
 
     // Start the animation
-    timeoutId = window.setTimeout(showNextImage, 100);
+    timeoutId = window.setTimeout(showNextImage, 50);
 
     return () => {
       if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [isSpinning, value, category, items, prefersReducedMotion]);
-
-  const handleImageError = () => {
-    setImageError(true);
-    setIsLoading(false);
-  };
+  }, [isSpinning, value, category, items]);
 
   return (
     <VStack
@@ -128,7 +126,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
             <HStack spacing={2} width="100%" justify="flex-start">
               {value && (
                 <Image
-                  src={`/images/${value}.png`} alt={value.replace(/_/g, ' ')}
+                  src={`./images/${value}.png`}
+                  alt={value.replace(/_/g, ' ')}
                   width="20px" height="20px" objectFit="contain"
                 />
               )}
@@ -163,7 +162,8 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
                 >
                   <HStack spacing={2} width="100%">
                     <Image
-                      src={`/images/${item}.png`} alt={item.replace(/_/g, ' ')}
+                      src={`./images/${item}.png`}
+                      alt={item.replace(/_/g, ' ')}
                       width="24px" height="24px" objectFit="contain"
                     />
                     <Box>{item.replace(/_/g, ' ')}</Box>
@@ -185,36 +185,36 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
         role="img" aria-label={`${displayedItem.replace(/_/g, ' ')} image`}
       >
         <AnimatePresence mode="popLayout">
-          {isLoading && !imageError && (
+          {isLoading && (
             <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
-          {!imageError ? (
-            <Image
-              key={displayedItem}
-              src={`/images/${displayedItem}.png`}
-              alt={displayedItem.replace(/_/g, ' ')}
-              width="100%"
-              height="100%"
-              objectFit="contain"
-              style={{ opacity: isLoading ? 0 : 1 }}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              loading="lazy"
-            />
-          ) : (
-            <Box
-              width="100%"
-              height="100%"
-              bg="gray.100"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              color="gray.500"
-              fontSize="sm"
-            >
-              {displayedItem.replace(/_/g, ' ')}
-            </Box>
-          )}
+          <Image
+            key={displayedItem}
+            src={`./images/${displayedItem}.png`}
+            alt={displayedItem.replace(/_/g, ' ')}
+            width="100%"
+            height="100%"
+            objectFit="contain"
+            style={{ opacity: isLoading ? 0 : 1 }}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            fallback={
+              <Box
+                width="100%"
+                height="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                bg="gray.100"
+                color="gray.500"
+                fontSize="sm"
+                textAlign="center"
+                borderRadius="md"
+              >
+                Image not found
+              </Box>
+            }
+          />
         </AnimatePresence>
       </Box>
 
