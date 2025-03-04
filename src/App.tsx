@@ -59,15 +59,6 @@ function App() {
             >
               Salad Spinner
             </Heading>
-            <Text 
-              fontSize={{ base: "md", md: "lg" }} 
-              color="gray.300" 
-              textAlign="center" 
-              px={4}
-              aria-description="Application description"
-            >
-              Spin to create your perfect salad combination!
-            </Text>
             <Box width="100%">
               <SaladSpinner />
             </Box>

@@ -1,31 +1,39 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, InputGroup, InputLeftElement, Popover, PopoverTrigger, PopoverContent, PopoverBody, List, ListItem, useDisclosure, Icon } from '@chakra-ui/react';
+import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, InputGroup, InputLeftElement, Popover, PopoverTrigger, PopoverContent, PopoverBody, List, ListItem, useDisclosure, Icon, Select, Text } from '@chakra-ui/react';
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { AnimatePresence } from 'framer-motion';
-import { SaladCategory, saladData } from '../types/salad';
+import { SaladCategory, saladData, SpinnerMode, modeConfigs } from '../types/salad';
 // import { badCombos } from '../types/salad'; // TODO: Use this to check for bad combos
 
 // const MotionBox = motion(Box);
 
 interface SpinnerSlotProps {
-  category: SaladCategory;
+  category: string;
   value: string;
   isLocked: boolean;
   onSpin: () => void;
   onLock: () => void;
   onChange: (value: string) => void;
   isSpinning: boolean;
+  items: string[];
 }
 
 const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
-  category, value, isLocked, onSpin, onLock, onChange, isSpinning,
+  category, value, isLocked, onSpin, onLock, onChange, isSpinning, items,
 }) => {
   // const controls = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
   const [displayedItem, setDisplayedItem] = useState(value || category);
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const items = saladData[category];
+
+  // Add error handling for images
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error when value changes
+  useEffect(() => {
+    setImageError(false);
+  }, [value]);
 
   // Format category name to be more readable
   const formatCategoryName = (cat: string) => {
@@ -95,6 +103,33 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
     };
   }, [isSpinning, value, category, items]);
 
+  const renderPlaceholder = (item: string) => {
+    const name = item.replace(/_/g, ' ');
+    return (
+      <Box
+        width="100%"
+        height="100%"
+        bg="gray.200"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        borderRadius="md"
+        p={2}
+      >
+        <Text
+          fontSize={{ base: "lg", md: "xl" }}
+          fontWeight="bold"
+          color="gray.800"
+          textAlign="center"
+          textTransform="capitalize"
+          lineHeight="shorter"
+        >
+          {name}
+        </Text>
+      </Box>
+    );
+  };
+
   return (
     <VStack
       gap={{ base: 1, md: 2 }} p={{ base: 2, md: 3 }}
@@ -116,11 +151,13 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
             isDisabled={isSpinning} rightIcon={<ChevronDownIcon />} size={{ base: "xs", md: "sm" }}
           >
             <HStack spacing={2} width="100%" justify="flex-start">
-              {value && (
+              {value && !imageError && (
                 <Image
                   src={`/images/${value}.png`}
                   alt={value.replace(/_/g, ' ')}
                   width="20px" height="20px" objectFit="contain"
+                  onError={() => setImageError(true)}
+                  fallback={<Box width="20px" height="20px" bg="gray.100" borderRadius="sm" />}
                 />
               )}
               <Box isTruncated>
@@ -180,16 +217,22 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
           {isLoading && (
             <Skeleton position="absolute" top={0} left={0} width="100%" height="100%" startColor="gray.100" endColor="gray.300"/>
           )}
-          <Image
-            key={displayedItem}
-            src={`/images/${displayedItem}.png`}
-            alt={displayedItem.replace(/_/g, ' ')}
-            width="100%"
-            height="100%"
-            objectFit="contain"
-            style={{ opacity: isLoading ? 0 : 1 }}
-            onLoad={handleImageLoad}
-          />
+          {imageError ? (
+            renderPlaceholder(displayedItem)
+          ) : (
+            <Image
+              key={displayedItem}
+              src={`/images/${displayedItem}.png`}
+              alt={displayedItem.replace(/_/g, ' ')}
+              width="100%"
+              height="100%"
+              objectFit="contain"
+              style={{ opacity: isLoading ? 0 : 1 }}
+              onLoad={handleImageLoad}
+              onError={() => setImageError(true)}
+              fallback={renderPlaceholder(displayedItem)}
+            />
+          )}
         </AnimatePresence>
       </Box>
 
@@ -217,17 +260,49 @@ const SpinnerSlot: React.FC<SpinnerSlotProps> = ({
 
 export const SaladSpinner: React.FC = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [selections, setSelections] = useState<Record<SaladCategory, string>>({
-    base: '', crunch: '', soft: '', unexpected: '', protein: '', dressing: ''
+  const [currentMode, setCurrentMode] = useState<SpinnerMode>('salad');
+  const currentConfig = modeConfigs[currentMode];
+  
+  const [selections, setSelections] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    currentConfig.categories.forEach(category => {
+      initial[category] = '';
+    });
+    return initial;
   });
 
-  const [lockedSlots, setLockedSlots] = useState<Record<SaladCategory, boolean>>({
-    base: false, crunch: false, soft: false, unexpected: false, protein: false, dressing: false
+  const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    currentConfig.categories.forEach(category => {
+      initial[category] = false;
+    });
+    return initial;
   });
 
-  const [spinningSlots, setSpinningSlots] = useState<Record<SaladCategory, boolean>>({
-    base: false, crunch: false, soft: false, unexpected: false, protein: false, dressing: false
+  const [spinningSlots, setSpinningSlots] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    currentConfig.categories.forEach(category => {
+      initial[category] = false;
+    });
+    return initial;
   });
+
+  // Reset state when mode changes
+  useEffect(() => {
+    const newSelections: Record<string, string> = {};
+    const newLocked: Record<string, boolean> = {};
+    const newSpinning: Record<string, boolean> = {};
+    
+    currentConfig.categories.forEach(category => {
+      newSelections[category] = '';
+      newLocked[category] = false;
+      newSpinning[category] = false;
+    });
+    
+    setSelections(newSelections);
+    setLockedSlots(newLocked);
+    setSpinningSlots(newSpinning);
+  }, [currentMode]);
 
   // Add initial spin effect
   useEffect(() => {
@@ -241,7 +316,7 @@ export const SaladSpinner: React.FC = () => {
     return () => clearTimeout(timer);
   }, [isInitialLoad]); // Only run when isInitialLoad changes
 
-  const spinSlot = async (category: SaladCategory) => {
+  const spinSlot = async (category: string) => {
     if (lockedSlots[category] || spinningSlots[category]) return;
 
     setSpinningSlots(prev => ({ ...prev, [category]: true }));
@@ -249,7 +324,8 @@ export const SaladSpinner: React.FC = () => {
     // Simulate spinning delay
     await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 500));
 
-    const randomIngredient = saladData[category][Math.floor(Math.random() * saladData[category].length)];
+    const items = currentConfig.data[category];
+    const randomIngredient = items[Math.floor(Math.random() * items.length)];
     setSelections(prev => ({
       ...prev,
       [category]: randomIngredient
@@ -261,14 +337,14 @@ export const SaladSpinner: React.FC = () => {
   };
 
   const spinAll = async () => {
-    const categories = Object.keys(selections) as SaladCategory[];
+    const categories = Object.keys(selections) as string[];
     const unlockedCategories = categories.filter(cat => !lockedSlots[cat]);
     
     // Start all spins simultaneously
     await Promise.all(unlockedCategories.map(category => spinSlot(category)));
   };
 
-  const toggleLock = (category: SaladCategory) => {
+  const toggleLock = (category: string) => {
     if (spinningSlots[category]) return;
     setLockedSlots(prev => ({
       ...prev,
@@ -276,7 +352,7 @@ export const SaladSpinner: React.FC = () => {
     }));
   };
 
-  const handleChange = (category: SaladCategory, value: string) => {
+  const handleChange = (category: string, value: string) => {
     if (spinningSlots[category]) return;
     setSelections(prev => ({
       ...prev,
@@ -286,27 +362,69 @@ export const SaladSpinner: React.FC = () => {
 
   return (
     <Box width="100%" maxW="100vw" role="main" aria-label="Salad Spinner Game">
-      <Grid
-        templateColumns={{base: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(6, 1fr)"}}
-        gap={{ base: 3, md: 4 }} width="100%" alignItems="stretch" justifyContent="center"
-        px={{ base: 2, md: 4 }} role="group" aria-label="Salad ingredient categories"
+      <Select
+        value={currentMode}
+        onChange={(e) => setCurrentMode(e.target.value as SpinnerMode)}
+        mb={6}
+        maxW="300px"
+        mx="auto"
+        bg="white"
+        size="lg"
       >
-        {(Object.keys(selections) as SaladCategory[]).map((category) => (
+        {Object.entries(modeConfigs).map(([mode, config]) => (
+          <option key={mode} value={mode}>
+            {config.name} Mode
+          </option>
+        ))}
+      </Select>
+      
+      <Grid
+        templateColumns={{
+          base: "repeat(2, 1fr)",
+          md: currentConfig.categories.length <= 4 ? "repeat(2, 1fr)" : "repeat(3, 1fr)",
+          lg: `repeat(${Math.min(currentConfig.categories.length, 6)}, 1fr)`
+        }}
+        gap={{ base: 3, md: 4 }}
+        width="100%"
+        alignItems="stretch"
+        justifyContent="center"
+        px={{ base: 2, md: 4 }}
+        role="group"
+        aria-label="Ingredient categories"
+      >
+        {currentConfig.categories.map((category) => (
           <SpinnerSlot
-            key={category} category={category} value={selections[category]}
-            isLocked={lockedSlots[category]} isSpinning={spinningSlots[category]}
-            onSpin={() => spinSlot(category)} onLock={() => toggleLock(category)}
+            key={category}
+            category={category}
+            value={selections[category]}
+            isLocked={lockedSlots[category]}
+            isSpinning={spinningSlots[category]}
+            onSpin={() => spinSlot(category)}
+            onLock={() => toggleLock(category)}
             onChange={(value) => handleChange(category, value)}
+            items={currentConfig.data[category]}
           />
         ))}
       </Grid>
 
       <Button
-        size={{ base: "lg", md: "lg" }} colorScheme="green" mt={{ base: 6, md: 8 }} onClick={spinAll}
-        width={{ base: "150px", md: "200px" }} height={{ base: "150px", md: "200px" }}
-        borderRadius="full" mx="auto" display="block"
-        disabled={Object.values(spinningSlots).some(Boolean)} _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
-        boxShadow="lg" _hover={{ transform: 'scale(1.05)' }} transition="all 0.2s" aria-label="Spin all unlocked ingredients"
+        size={{ base: "lg", md: "lg" }}
+        colorScheme="green"
+        mt={{ base: 6, md: 8 }}
+        onClick={spinAll}
+        width={{ base: "200px", md: "300px" }}
+        height={{ base: "60px", md: "80px" }}
+        borderRadius="xl"
+        mx="auto"
+        display="block"
+        disabled={Object.values(spinningSlots).some(Boolean)}
+        _disabled={{ opacity: 0.6, cursor: 'not-allowed' }}
+        boxShadow="lg"
+        _hover={{ transform: 'scale(1.05)' }}
+        transition="all 0.2s"
+        aria-label="Spin all unlocked ingredients"
+        fontSize={{ base: "xl", md: "2xl" }}
+        fontWeight="bold"
       >
         {Object.values(spinningSlots).some(Boolean) ? 'Spinning...' : 'SPIN ALL!'}
       </Button>
@@ -314,13 +432,4 @@ export const SaladSpinner: React.FC = () => {
   );
 }; 
 
-// TODO:
-// Add a toggle to switch to "Wonder Jar" mode.
-// "Wonder Jar" mode has the following categories and ingredients:
-// Protein: Beans, Lentils, Peas, Tofu, Chicken, Turkey
-// Veggies: California, Broccoli, Mixed, stirfry, Zucchini and tomatoes, eggplant
-// Starch: Rice, Potatoes, Pasta, Quinoa, Bread
-// Sauce: Vinaigrette, hot sauce, soy sauce, sour cream, mayonnaise, cheese
-
-// TODO:
-// Users should be able to adjust the categories and their contents.
+// TODO: Users should be able to adjust the categories and their contents.

@@ -15,11 +15,45 @@ export const saladData = {
   dressing: ['mustard_based', 'tahini_based', 'dairy_based', 'vinaigrette', 'pesto_based', 'fruity']
 };
 
-export const badCombos = [
+export const saladBadCombos = [
   ['pea_shoots', 'sprouts'],
   ['cheese', 'cottage_cheese'],
   ['dairy_based', 'cottage_cheese'],
   ['steak', 'fruity'],
   ['croutons', 'rice'],
   ['vinaigrette', 'cottage_cheese']
-]; 
+];
+
+export type WonderJarCategory = 'protein' | 'veggies' | 'starch' | 'sauce';
+
+export const wonderJarData = {
+  protein: ['beans', 'lentils', 'peas', 'tofu', 'chicken', 'turkey'],
+  veggies: ['california', 'broccoli', 'mixed_veg', 'stir_fry', 'zucchini_and_tomatoes', 'eggplant'],
+  starch: ['rice', 'potatoes', 'pasta', 'quinoa', 'bread'],
+  sauce: ['vinaigrette', 'hot_sauce', 'soy_sauce', 'sour_cream', 'mayonnaise', 'cheese']
+};
+
+export const wonderJarBadCombos = [
+  ['peas', 'california']
+];
+
+export type SpinnerMode = 'salad' | 'wonder_jar';
+
+export interface SpinnerModeConfig {
+  name: string;
+  categories: string[];
+  data: Record<string, string[]>;
+}
+
+export const modeConfigs: Record<SpinnerMode, SpinnerModeConfig> = {
+  salad: {
+    name: 'Salad',
+    categories: ['base', 'crunch', 'soft', 'unexpected', 'protein', 'dressing'],
+    data: saladData
+  },
+  wonder_jar: {
+    name: 'Wonder Jar',
+    categories: ['protein', 'veggies', 'starch', 'sauce'],
+    data: wonderJarData
+  }
+};
