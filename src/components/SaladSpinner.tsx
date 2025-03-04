@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Box, Button, Grid, Image, VStack, HStack, Skeleton, Heading, Input, InputGroup, InputLeftElement, Popover, PopoverTrigger, PopoverContent, PopoverBody, List, ListItem, useDisclosure, Icon, Select, Text } from '@chakra-ui/react';
 import { SearchIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { AnimatePresence } from 'framer-motion';
-import { SaladCategory, saladData, SpinnerMode, modeConfigs } from '../types/salad';
+import { SpinnerMode, modeConfigs } from '../types/salad';
 // import { badCombos } from '../types/salad'; // TODO: Use this to check for bad combos
 
 // const MotionBox = motion(Box);
@@ -287,6 +287,14 @@ export const SaladSpinner: React.FC = () => {
     return initial;
   });
 
+  const spinAll = async () => {
+    const config = modeConfigs[currentMode]; // Get the current config at spin time
+    const unlockedCategories = config.categories.filter(cat => !lockedSlots[cat]);
+    
+    // Start all spins simultaneously
+    await Promise.all(unlockedCategories.map(category => spinSlot(category)));
+  };
+
   // Reset state when mode changes
   useEffect(() => {
     const newSelections: Record<string, string> = {};
@@ -302,6 +310,13 @@ export const SaladSpinner: React.FC = () => {
     setSelections(newSelections);
     setLockedSlots(newLocked);
     setSpinningSlots(newSpinning);
+
+    // Add delay before spinning
+    const timer = setTimeout(() => {
+      spinAll();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [currentMode]);
 
   // Add initial spin effect
@@ -336,14 +351,6 @@ export const SaladSpinner: React.FC = () => {
     setSpinningSlots(prev => ({ ...prev, [category]: false }));
   };
 
-  const spinAll = async () => {
-    const categories = Object.keys(selections) as string[];
-    const unlockedCategories = categories.filter(cat => !lockedSlots[cat]);
-    
-    // Start all spins simultaneously
-    await Promise.all(unlockedCategories.map(category => spinSlot(category)));
-  };
-
   const toggleLock = (category: string) => {
     if (spinningSlots[category]) return;
     setLockedSlots(prev => ({
@@ -370,6 +377,7 @@ export const SaladSpinner: React.FC = () => {
         mx="auto"
         bg="white"
         size="lg"
+        isDisabled={Object.values(spinningSlots).some(Boolean)}
       >
         {Object.entries(modeConfigs).map(([mode, config]) => (
           <option key={mode} value={mode}>

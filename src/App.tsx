@@ -1,4 +1,4 @@
-import { ChakraProvider, Heading, Text, VStack, Box, Flex, Image } from '@chakra-ui/react'
+import { ChakraProvider, Heading, VStack, Box, Flex, Image } from '@chakra-ui/react'
 import { SaladSpinner } from './components/SaladSpinner'
 
 function App() {
