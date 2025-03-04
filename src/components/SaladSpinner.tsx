@@ -436,6 +436,15 @@ export const SaladSpinner: React.FC = () => {
       >
         {Object.values(spinningSlots).some(Boolean) ? 'Spinning...' : 'SPIN ALL!'}
       </Button>
+
+      <Text
+        fontSize="sm"
+        color="gray.500"
+        textAlign="center"
+        mt={4}
+      >
+        Inspired by <Box as="a" href="/images/salads.jpg" target="_blank" color="green.500" textDecoration="underline">this image</Box> from hellonatural.co
+      </Text>
     </Box>
   );
 }; 
