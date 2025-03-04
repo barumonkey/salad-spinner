@@ -5,7 +5,7 @@
 // export interface SaladIngredient {
 //   name: string;
 //   image: string;
-  category: SaladCategory;
+// category: SaladCategory;
 // }
 // 
 // export const saladBadCombos = [
